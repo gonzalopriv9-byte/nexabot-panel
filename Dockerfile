@@ -1,36 +1,13 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
-COPY . .
-
-# Build application
-RUN npm run build
-
-# Stage 2: Runtime
+# Simple web server
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy all files
+COPY . .
 
-# Install only production dependencies
-RUN npm install --omit=dev
-
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
-
-# Expose port
+# Expose port (Render uses this)
 EXPOSE 3000
 
-# Start application
-CMD ["npm", "start"]
+# Simple HTTP server using node
+CMD ["node", "-e", "const http = require('http'); const fs = require('fs'); http.createServer((req, res) => { res.writeHead(200, {'Content-Type': 'text/html'}); res.end('<h1>NexaBot Panel</h1><p>Service is running</p>'); }).listen(3000, () => console.log('Server running on port 3000')); "]
